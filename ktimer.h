@@ -29,6 +29,9 @@ public:
         Started
     };
 
+    bool isBlocked() const {
+        return blocked;
+    }
     unsigned delay() const;
     QString command() const;
     bool loop() const;
@@ -82,6 +85,7 @@ private Q_SLOTS:
     void processExited(int, QProcess::ExitStatus);
 
 private:
+    bool blocked = false;
     struct KTimerJobPrivate *d;
 };
 

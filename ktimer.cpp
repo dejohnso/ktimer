@@ -67,18 +67,23 @@ public:
 
         setText(1, m_job->formatTime(m_job->delay()));
 
-        switch (m_job->state()) {
-        case KTimerJob::Stopped:
-            setIcon(2, QIcon::fromTheme(u"media-playback-stop"_s));
-            break;
-        case KTimerJob::Paused:
-            setIcon(2, QIcon::fromTheme(u"media-playback-pause"_s));
-            break;
-        case KTimerJob::Started:
-            setIcon(2, QIcon::fromTheme(u"arrow-right"_s));
-            break;
+        if (m_job->isBlocked()) {
+            setText(2, QStringLiteral("Blocked"));
+            setIcon(2, QIcon());
+        } else {
+            setText(2, QString());
+            switch (m_job->state()) {
+            case KTimerJob::Stopped:
+                setIcon(2, QIcon::fromTheme(u"media-playback-stop"_s));
+                break;
+            case KTimerJob::Paused:
+                setIcon(2, QIcon::fromTheme(u"media-playback-pause"_s));
+                break;
+            case KTimerJob::Started:
+                setIcon(2, QIcon::fromTheme(u"arrow-right"_s));
+                break;
+            }
         }
-
         setText(3, m_job->command());
     }
 
@@ -583,6 +588,7 @@ void KTimerJob::fire()
                 const QString prog = splitArguments.takeFirst();
                 proc->start(prog, splitArguments);
             }
+            blocked = false;
             Q_EMIT fired(this);
         }
         if (proc->state() == QProcess::NotRunning) {
@@ -592,6 +598,8 @@ void KTimerJob::fire()
             Q_EMIT error(this);
             Q_EMIT finished(this, true);
         }
+    } else {
+        blocked = true;
     }
 }
 
